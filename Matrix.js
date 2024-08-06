@@ -52,7 +52,7 @@ class Matrix {
             // Checking the sizes to make sure they work
             if (this.cols != other.rows) {
 
-                console.log("The columns in the first inputted Matrix must be the same as the rows int he second inputted Matrix.");
+                console.log("The columns in the first inputted Matrix must be the same as the rows in the second inputted Matrix.");
 
                 console.log("Matrix a:");
                 this.print();
