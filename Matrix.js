@@ -337,6 +337,11 @@ class Matrix {
 
     }
 
+    // A method that will return the data as an array
+    toArray() {
+        return this.data;
+    }
+
 
     // -------------------STATIC METHODS-----------------------
     // These will return a new matrix object for each 
