@@ -143,7 +143,7 @@ function trainTheIdiot() {
     }
 
     // Slowly lowering the learning rate so that it stops jiggling so much
-    brian.learningRate -= 0.000001;
+    brian.learningRate *= 0.9999999;
 
     // IF IT DOESN'T WORK WELL ENOUGH FOR YOU, GET RID OF THIS ^^^ :D
 
