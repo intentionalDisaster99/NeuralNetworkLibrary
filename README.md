@@ -26,6 +26,13 @@ This is actually exatly the same as the XOR example in the way that you use it. 
 
 Then, for the harder method, you can simply download the files and run them with whatever live runner you like. While they are a bit harder to get working, the files in the main repo are going to generally be newer, so they might be worth using or playing around with. 
 
+### Handwriting Recognition Example
+This one is one of the fun ones. It will, when it is done, be able to recognize handwritten digits hopefully fairly well. I haven't finished it yet, but I do have some goals I wanted to add in so you can track my progress if you're interested.
+
+- [ ] Actually get it to start learning and knowing the set at all
+- [ ] Saving the best one from each time \(I might get to learn JSON!)
+- [ ] Letting users write in their own digits
+- [ ] Adding in little transformations \(and rotations) to the pictures so that it doesn't simply learn based on location
 
 ## Future Plans
 I hope to continue making this more and more powerful in the future, with ore efficient algorithms and different designs\(I might get to play with branches!).
@@ -49,5 +56,15 @@ It would slowly decrease it until it reaches the initial's learning rate. Then i
 ## Uhhh why
 Well, while it would probably greatly increase the training time of the network, it would probably increase the accuracy of the network and, at the end of the day, that's the goal. It would be an option that would have to specifically be toggled on when the network is instantiated so that someone who doesn't know it exists doesn't get really frustrated at it.
 
+# Giving others credit where it is due
+
 ## Credit for p5.js
 This is definitely NOT MY CODE! Huge thanks to the p5 community and creaters for all of the work that they put in to make p5 what it is today, allowing me to do all the crap I do with it. If you want to learn more or download all of it yourself, go [here](https://p5js.org).
+
+## Credit for the MNIST dataset
+This was definitely not made by me, but instead written by a bunch of high schoolers I believe, and compiled by \(A quick google says) Yann LeCun. I downloaded if from this link [here](https://drive.google.com/file/d/1eEKzfmEu6WKdRlohBQiqi3PhW_uIVJVP/view), also from a quick google search. This one is just a CSV file so it was fairly simple to use.
+
+
+
+
+
