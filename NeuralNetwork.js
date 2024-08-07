@@ -1,59 +1,104 @@
-// TODO Change append to push
-
-
 class NeuralNetwork {
 
     // Here is my constructor
     constructor(layout) {
 
-        // Making sure that the layout is an array
-        if (!Array.isArray(layout)) {
+        // Making sure that the layout is an array or a neural network to copy
+        if (!Array.isArray(layout) && !(layout instanceof NeuralNetwork)) {
 
             // Throwing errors and just generally helpful stuff
             console.log("The input to the NeuralNetwork constructor must be an array to define the layout of the network.");
             throw new Error("NeuralNetworkConstructorTypeError");
 
-        } else if (layout.length < 3) {
-
-            // More errors yippee
-            console.log("The layout for the NeuralNetwork class must be an array with a length of more than 2.\n(Otherwise you wouldn't have a hidden layer and that kinda removes the point.)");
-            throw new Error("NeuralNetworkConstructorSizeError");
-
         }
 
-        // Setting up the layout variables
-        this.numInputNodes = layout[0];
-        this.hiddenLayout = layout.slice(1, layout.length - 1);
-        this.numOutputNodes = layout[layout.length - 1];
+        // Checking to see if we are making a new network or cloning an old one
+        if (layout instanceof NeuralNetwork) {
 
-        // Recording the full layout in case I ever want it
-        this.layout = layout;
 
-        // Getting random weights and biases for the outermost bits
-        this.weights_ih = new Matrix(this.hiddenLayout[0], this.numInputNodes).randomize().mult(2).add(-1);
-        this.weights_ho = new Matrix(this.numOutputNodes, this.hiddenLayout[this.hiddenLayout.length - 1]).randomize().mult(2).add(-1);
-        this.bias_o = new Matrix(this.numOutputNodes, 1).randomize().mult(2).add(-1);
+            // Copying the input variables.
+            this.numInputNodes = layout.numInputNodes.copy();
+            this.hiddenLayout = layout.hiddenLayout.copy();
+            this.numOutputNodes = layout.numOutputNodes.copy();
 
-        // Declaring the random weights and biases arrays that connect the hidden layers
-        this.weights_h = [];
-        this.biases_h = [];
+            // Taking the record of the layout from the input
+            this.layout = layout.layout.copy();
 
-        // Getting random weights and biases to connect the hidden layers
-        for (let i = 0; i < this.hiddenLayout.length - 1; i++) {
+            // Getting random weights and biases for the outermost bits
+            this.weights_ih = layout.weights_ih.copy();
+            this.weights_ho = layout.weights_ho.copy();
+            this.bias_o = layout.bias_o.copy();
 
-            // Making the weight
-            this.weights_h.push(new Matrix(this.hiddenLayout[i + 1], this.hiddenLayout[i]).randomize().mult(2).add(-1));
+            // Declaring the random weights and biases arrays that connect the hidden layers
+            this.weights_h = [];
+            this.biases_h = [];
 
-            // Making the bias
-            this.biases_h.push(new Matrix(this.hiddenLayout[i], 1).randomize().mult(2).add(-1));
+            // Getting random weights and biases to connect the hidden layers
+            for (let i = 0; i < layout.weights_h.length - 1; i++) {
+
+                // Making the weight
+                this.weights_h.push(layout.weights_h[i].copy());
+
+            }
+            for (let i = 0; i < layout.biases_h.length - 1; i++) {
+
+                // Making the weight
+                this.biases_h.push(layout.biases_h[i].copy());
+
+            }
+
+            // How quickly it will learn 
+            this.learningRate = layout.learningRate;
+
+
+
+
+        } else {
+
+            // Checking to make sure that the input is the right length
+            if (layout.length < 3) {
+
+                // More errors yippee
+                console.log("The layout for the NeuralNetwork class must be an array with a length of more than 2.\n(Otherwise you wouldn't have a hidden layer and that kinda removes the point.)");
+                throw new Error("NeuralNetworkConstructorSizeError");
+
+            }
+
+            // Setting up the layout variables
+            this.numInputNodes = layout[0];
+            this.hiddenLayout = layout.slice(1, layout.length - 1);
+            this.numOutputNodes = layout[layout.length - 1];
+
+            // Recording the full layout in case I ever want it
+            this.layout = layout;
+
+            // Getting random weights and biases for the outermost bits
+            this.weights_ih = new Matrix(this.hiddenLayout[0], this.numInputNodes).randomize().mult(2).add(-1);
+            this.weights_ho = new Matrix(this.numOutputNodes, this.hiddenLayout[this.hiddenLayout.length - 1]).randomize().mult(2).add(-1);
+            this.bias_o = new Matrix(this.numOutputNodes, 1).randomize().mult(2).add(-1);
+
+            // Declaring the random weights and biases arrays that connect the hidden layers
+            this.weights_h = [];
+            this.biases_h = [];
+
+            // Getting random weights and biases to connect the hidden layers
+            for (let i = 0; i < this.hiddenLayout.length - 1; i++) {
+
+                // Making the weight
+                this.weights_h.push(new Matrix(this.hiddenLayout[i + 1], this.hiddenLayout[i]).randomize().mult(2).add(-1));
+
+                // Making the bias
+                this.biases_h.push(new Matrix(this.hiddenLayout[i], 1).randomize().mult(2).add(-1));
+
+            }
+
+            // We need one more bias because we need one for every hidden layer not for every connection
+            this.biases_h.push(new Matrix(this.hiddenLayout[this.hiddenLayout.length - 1], 1).randomize().mult(2).add(-1));
+
+            // How quickly it will learn 
+            this.learningRate = 0.025;
 
         }
-
-        // We need one more bias because we need one for every hidden layer not for every connection
-        this.biases_h.push(new Matrix(this.hiddenLayout[this.hiddenLayout.length - 1], 1).randomize().mult(2).add(-1));
-
-        // How quickly it will learn 
-        this.learningRate = 0.025;
 
     }
 
@@ -77,7 +122,7 @@ class NeuralNetwork {
         // Generating the output layer values
         let output = Matrix.mult(this.weights_ho, hiddenOutput).add(this.bias_o).map(this.activation);
 
-        return output.data;
+        return output.toArray();
 
     }
 
@@ -107,18 +152,43 @@ class NeuralNetwork {
         let outputs = Matrix.mult(this.weights_ho, hiddenOutputs[hiddenOutputs.length - 1]).add(this.bias_o).map(this.activation);
 
         // Turning the labels into a matrix
-        let labels = Matrix.fromArray(targets);
+        let labels = Matrix.fromArray(targets).transpose();
+
+        // ! There is an error here with the sizes on the next line
+
+        // // Adjusting the outputs and labels to make them fit
+        // labels.transpose();
+        // outputs.transpose();
+
+        // console.log("Labels: ");
+        // labels.print();
+
+        // console.log("Outputs: ");
+        // outputs.print();
+
 
         // Now we need to find the error of the output layer
         let outputErrors = Matrix.subtract(labels, outputs);
 
+        // console.log("Output Errors: ");
+        // outputErrors.print();
+
+        // console.log("Bias_o: ");
+        // this.bias_o.print();
+
         // Now we need to find the gradients to figure out what will happen next
 
         // Running the gradient through the activation gradient
-        let outputGradient = Matrix.map(outputs, this.activationPrime).mult(outputErrors).mult(this.learningRate);
+        let outputGradient = Matrix.map(outputs, this.activationPrime).elementMult(outputErrors).mult(this.learningRate);
+
+        // console.log("Output Gradient: ");
+        // outputGradient.print();
 
         // Calculating the deltas (changes)
         let weights_ho_deltas = Matrix.mult(outputGradient, Matrix.transpose(hiddenOutputs[hiddenOutputs.length - 1]));
+
+        // console.log("Weights HO Deltas: ");
+        // weights_ho_deltas.print();
 
         // Now to adjust the new weights going into the final layer
         this.weights_ho.add(weights_ho_deltas);
@@ -153,6 +223,7 @@ class NeuralNetwork {
 
 
     }
+
 
     // The activation function
     activation(x) {

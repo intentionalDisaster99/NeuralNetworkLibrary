@@ -25,32 +25,89 @@ function setup() {
     loadData();
 
     // Now to create the idiot
-    brian = new NeuralNetwork([784, 100, 100, 100, 10]);
+    brian = new NeuralNetwork([784, 10, 5, 2, 10]);
+
+    // Making sure that the user knows it's just loading
+    console.log("Loading...");
 
 
+
+}
+
+function mousePressed() {
+    noLoop();
 }
 
 function draw() {
 
+    // Checking to make sure it is loaded 
+    if (!loaded) { return }
+
+    // Picking a random digit to work with
+    let index = Math.floor((Math.random() * trainingData.length));
+
     // Drawing the one we are on now
-    drawDigit();
+    drawDigit(index);
+
+    // Now to train brian
+    train();
+
+    // Just logging what the dataset thinks it is and what Brian thinks it is
+    console.log("It is a ", trainingLabels[index]);
+
+    // These are the probabilities of each (Tho they might not add up to 1)
+    let output = brian.feedForward(trainingData[index]);
+
+    // Figuring out which one is the highest one
+    let highestIndex = 0;
+    let highest = 0;
+    for (let i = 0; i < 10; i++) {
+        if (output[i] > highest) {
+            highest = output[i];
+            highestIndex = i;
+        }
+    }
+
+    // Printing out what we got from Brian
+    console.log("Brian thinks that it is a " + highestIndex);
+
 
 
 
 }
 
+// Now for a simple training function that I will probably be refactoring later
+function train() {
 
-function drawDigit() {
+    for (let i = 0; i < 500; i++) {
 
-    // Checking to make sure it is loaded 
-    if (!loaded) { return }
+        // Picking a random training index to train on 
+        let index = Math.floor((Math.random() * trainingData.length));
+
+        // Setting up the input
+        let labels = [];
+        for (let j = 0; j < 10; j++) {
+            if (j == trainingLabels[index]) {
+                labels.push(1);
+            } else {
+                labels.push(0)
+            }
+        }
+
+        // Running it back through brian 
+        brian.train(trainingData[i], labels);
+
+    }
+
+
+}
+
+
+function drawDigit(index) {
 
     // Finding the width and height of the rectangles
     let rectWidth = width / 28;
     let rectHeight = height / 28;
-
-    // We want a random index in the training arrays
-    let index = Math.floor((Math.random() * trainingData.length));
 
     // Making sure that there is no stroke
     noStroke();
@@ -69,7 +126,7 @@ function drawDigit() {
         }
 
     }
-    noLoop();
+
 
 }
 
@@ -175,5 +232,8 @@ async function loadData() {
 
     // Now, we should have everything, albeit a lot, so we can restart the drawing
     loaded = true;
+
+    // Telling the user that it has finished loading
+    console.log("Finished loading!");
 
 }
