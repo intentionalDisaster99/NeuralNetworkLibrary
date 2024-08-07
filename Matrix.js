@@ -238,6 +238,25 @@ class Matrix {
         return this;
     }
 
+    // A method that returns a copy of the matrix
+    copy() {
+
+        // First to make a new one to return
+        let newMat = new Matrix(this.rows, this.cols);
+
+        // Looping to recreate the data
+        newMat.data = [];
+        for (let i = 0; i < this.data.length; i++) {
+            newMat.data.push(this.data[i].slice());
+        }
+
+        // Returning the new matrix
+        return newMat;
+
+        // There might be an error here; I was watching the Olympics at the same time ¯\_(ツ)_/¯
+
+    }
+
     // This will be the dot product one
     dot(other) {
 
