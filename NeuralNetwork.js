@@ -106,7 +106,7 @@ class NeuralNetwork {
     feedForward(data) {
 
         // Making a matrix out of the input
-        let input = Matrix.fromArray(data).transpose();
+        let input = Matrix.fromArray(data);
 
         // Getting the first of the hidden outputs because it uses the input layer outputs instead of other hidden outputs
         let hiddenOutput = Matrix.mult(this.weights_ih, input).add(this.biases_h[0]).map(this.activation);
@@ -132,7 +132,7 @@ class NeuralNetwork {
         // Running the feed forwards algorithm to get all of the data we want from the inner layers
 
         // Making a matrix out of the input
-        let input = Matrix.fromArray(data).transpose();
+        let input = Matrix.fromArray(data);//.transpose();
 
         // I have to save the outputs from the hidden layer now for training, and I'm going to save them in this array
         let hiddenOutputs = [];
@@ -152,43 +152,19 @@ class NeuralNetwork {
         let outputs = Matrix.mult(this.weights_ho, hiddenOutputs[hiddenOutputs.length - 1]).add(this.bias_o).map(this.activation);
 
         // Turning the labels into a matrix
-        let labels = Matrix.fromArray(targets).transpose();
-
-        // ! There is an error here with the sizes on the next line
-
-        // // Adjusting the outputs and labels to make them fit
-        // labels.transpose();
-        // outputs.transpose();
-
-        // console.log("Labels: ");
-        // labels.print();
-
-        // console.log("Outputs: ");
-        // outputs.print();
+        let labels = Matrix.fromArray(targets);
 
 
         // Now we need to find the error of the output layer
         let outputErrors = Matrix.subtract(labels, outputs);
-
-        // console.log("Output Errors: ");
-        // outputErrors.print();
-
-        // console.log("Bias_o: ");
-        // this.bias_o.print();
 
         // Now we need to find the gradients to figure out what will happen next
 
         // Running the gradient through the activation gradient
         let outputGradient = Matrix.map(outputs, this.activationPrime).elementMult(outputErrors).mult(this.learningRate);
 
-        // console.log("Output Gradient: ");
-        // outputGradient.print();
-
         // Calculating the deltas (changes)
         let weights_ho_deltas = Matrix.mult(outputGradient, Matrix.transpose(hiddenOutputs[hiddenOutputs.length - 1]));
-
-        // console.log("Weights HO Deltas: ");
-        // weights_ho_deltas.print();
 
         // Now to adjust the new weights going into the final layer
         this.weights_ho.add(weights_ho_deltas);
@@ -244,6 +220,39 @@ class NeuralNetwork {
     setActivationFunction(func, funcDeriv) {
         this.activation = func;
         this.activationPrime = funcDeriv;
+    }
+
+    // A function that returns the JSON string of the network 
+    toJSON() {
+
+        // Just saving a bunch of stuff as arrays
+        return {
+            layout: this.layout,
+            weights_ih: this.weights_ih.toArray(),
+            weights_ho: this.weights_ho.toArray(),
+            weights_h: this.weights_h.map(weight => weight.toArray()),
+            biases_h: this.biases_h.map(bias => bias.toArray()),
+            bias_o: this.bias_o.toArray(),
+            learningRate: this.learningRate
+        };
+
+    }
+
+    // A static array to unpack from a JSON string
+    static fromJSON(json) {
+
+        let data = JSON.parse(json);
+        let network = new NeuralNetwork(data.layout);
+
+        network.weights_ih = Matrix.fromArray(data.weights_ih);
+        network.weights_ho = Matrix.fromArray(data.weights_ho);
+        network.weights_h = data.weights_h.map(weight => Matrix.fromArray(weight));
+        network.biases_h = data.biases_h.map(bias => Matrix.fromArray(bias));
+        network.bias_o = Matrix.fromArray(data.bias_o);
+        network.learningRate = data.learningRate;
+
+        return network;
+
     }
 
 }

@@ -30,12 +30,13 @@ function setup() {
     // Making sure that the user knows it's just loading
     console.log("Loading...");
 
-
-
 }
 
 function mousePressed() {
-    noLoop();
+
+    saveTheIdiot();
+
+
 }
 
 function draw() {
@@ -235,5 +236,18 @@ async function loadData() {
 
     // Telling the user that it has finished loading
     console.log("Finished loading!");
+
+}
+
+
+// This should (hopefully) be a function that saves Brian as a JSON file to be used later
+function saveTheIdiot() {
+
+    let spaghettifiedBrian = JSON.stringify(brian);//brian.toJSON();
+
+    // console.log(spaghettifiedBrian);
+
+    brian = NeuralNetwork.fromJSON(spaghettifiedBrian);
+
 
 }

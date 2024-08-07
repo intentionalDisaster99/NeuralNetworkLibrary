@@ -358,7 +358,8 @@ class Matrix {
 
     // A method that will return the data as an array
     toArray() {
-        return this.data;
+        // Deep copy of the data to avoid direct reference issues
+        return this.data.map(row => row.slice());
     }
 
 
@@ -592,42 +593,43 @@ class Matrix {
         // Creating the new matrix object to return
         let newMat = new Matrix();
 
-        // Checking to see if the input is a 1D array, because we have to treat it differently if it is
-        if (!(arr[0].length > 1)) {
+        // // Checking to see if the input is a 1D array, because we have to treat it differently if it is
+        // if (!(arr[0].length > 1)) {
 
 
-            // It is a 1D array, so we will treat it as a row matrix
-            newMat.data = [arr];
+        //     // It is a 1D array, so we will treat it as a row matrix
+        //     newMat.data = [arr];
 
-            // Setting the data
-            newMat.rows = 1;
-            newMat.cols = arr.length;
+        //     // Setting the data
+        //     newMat.rows = 1;
+        //     newMat.cols = arr.length;
 
-            // Returning this 
-            return newMat;
+        //     // Returning this 
+        //     return newMat;
 
-        }
+        // }
 
-        // Looping through the array to define the matrix
-        for (let row = 0; row < arr.length; row++) {
+        // // Looping through the array to define the matrix
+        // for (let row = 0; row < arr.length; row++) {
 
-            // Creating this row with the right length
-            newMat.data[row] = new Array(arr[0].length);
+        //     // Creating this row with the right length
+        //     newMat.data[row] = new Array(arr[0].length);
 
-            for (let col = 0; col < arr[0].length; col++) {
+        //     for (let col = 0; col < arr[0].length; col++) {
 
-                newMat.data[row][col] = arr[row][col];
+        //         newMat.data[row][col] = arr[row][col];
 
-            }
+        //     }
 
-        }
+        // }
 
         // Setting the dimensions of the matrix
         newMat.rows = arr.length;
         newMat.cols = arr[0].length;
 
         // Returning the new
-        return newMat;
+        // return newMat;
+        return new Matrix(arr.length, arr[0].length).set(arr);
 
     }
 
