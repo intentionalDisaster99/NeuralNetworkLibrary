@@ -45,6 +45,7 @@ Anyway, here are some \~relatively\~ short term goals that I hope to end up addi
 - [ ] Doodle recognition.
 - [ ] Saving networks that do well in other files.
 - [ ] GPU processing for the matrix mart of the library.
+- [ ] Face recognition
 - [ ] NEAT algorithm \(Cause it's neat).
 - [ ] I have [this idea](https://github.com/intentionalDisaster99/NeuralNetworkLibrary/edit/main/README.md#what-was-that-branching-stuff) to make a network that branches
 
