@@ -15,6 +15,9 @@ let brian;
 // A bool to make it easy to know if the data has loaded or not
 let loaded = false;
 
+// A counter to count the number of epochs that we have run
+let epochNum = 0;
+
 
 function setup() {
 
@@ -25,7 +28,7 @@ function setup() {
     loadData();
 
     // Now to create the idiot
-    brian = new NeuralNetwork([784, 10, 5, 2, 10]);
+    brian = new NeuralNetwork([784, 256, 64, 32, 10]);
 
     // Making sure that the user knows it's just loading
     console.log("Loading...");
@@ -34,8 +37,41 @@ function setup() {
 
 function mousePressed() {
 
-    saveTheIdiot();
+    // If shift is pressed, then testing the accuracy 
+    if (keyIsDown(16)) {
 
+        // Checking the accuracy of the model
+        console.log("Brian has a score of " + getAccuracy() + "% on the testing set.");
+
+    } else {
+
+
+        // Picking a random digit to work with
+        let index = Math.floor((Math.random() * trainingData.length));
+
+        // Drawing the one we are on now
+        drawDigit(index);
+
+        // Just logging what the dataset thinks it is and what Brian thinks it is
+        console.log("It is a ", trainingLabels[index]);
+
+        // These are the probabilities of each (Tho they might not add up to 1)
+        let output = brian.feedForward(trainingData[index]);
+
+        // Figuring out which one is the highest one
+        let highestIndex = 0;
+        let highest = 0;
+        for (let i = 0; i < 10; i++) {
+            if (output[i] > highest) {
+                highest = output[i];
+                highestIndex = i;
+            }
+        }
+
+        // Printing out what we got from Brian
+        console.log("Brian thinks that it is a " + highestIndex);
+
+    }
 
 }
 
@@ -44,62 +80,39 @@ function draw() {
     // Checking to make sure it is loaded 
     if (!loaded) { return }
 
-    // Picking a random digit to work with
-    let index = Math.floor((Math.random() * trainingData.length));
+    if (keyIsDown(32)) {
 
-    // Drawing the one we are on now
-    drawDigit(index);
 
-    // Now to train brian
-    train();
+        // Training
+        console.log("Training epoch number " + epochNum);
+        train();
+        console.log("Finished training epoch number " + epochNum);
+        epochNum++;
 
-    // Just logging what the dataset thinks it is and what Brian thinks it is
-    console.log("It is a ", trainingLabels[index]);
-
-    // These are the probabilities of each (Tho they might not add up to 1)
-    let output = brian.feedForward(trainingData[index]);
-
-    // Figuring out which one is the highest one
-    let highestIndex = 0;
-    let highest = 0;
-    for (let i = 0; i < 10; i++) {
-        if (output[i] > highest) {
-            highest = output[i];
-            highestIndex = i;
-        }
     }
-
-    // Printing out what we got from Brian
-    console.log("Brian thinks that it is a " + highestIndex);
-
-
-
 
 }
 
 // Now for a simple training function that I will probably be refactoring later
 function train() {
 
-    for (let i = 0; i < 500; i++) {
+    for (let i = 0; i < 1000; i++) {
 
         // Picking a random training index to train on 
         let index = Math.floor((Math.random() * trainingData.length));
 
-        // Setting up the input
-        let labels = [];
-        for (let j = 0; j < 10; j++) {
-            if (j == trainingLabels[index]) {
-                labels.push(1);
-            } else {
-                labels.push(0)
-            }
-        }
+        // Making an array of 0's to use as the labels
+        let labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-        // Running it back through brian 
-        brian.train(trainingData[i], labels);
+        // Putting a 1 at the index of the label
+        labels[Number(trainingLabels[index])] = 1;
+
+        let imageInputs = trainingData[index];
+
+        // Running it back through brian
+        brian.train(imageInputs, labels);
 
     }
-
 
 }
 
@@ -119,7 +132,7 @@ function drawDigit(index) {
         for (let y = 0; y < 28; y++) {
 
             // Finding the color that we need to draw here
-            fill(trainingData[index][x + y * 28], trainingData[index][x + y * 28], trainingData[index][x + y * 28]);
+            fill(trainingData[index][x + y * 28] * 255, trainingData[index][x + y * 28] * 255, trainingData[index][x + y * 28] * 255);
 
             // Drawing
             rect(x * rectWidth, y * rectHeight, rectWidth, rectHeight);
@@ -128,6 +141,46 @@ function drawDigit(index) {
 
     }
 
+
+}
+
+// TODO Change these from training data to testing data
+// A function that checks Brian against all of the training data and returns his score
+// TODO Institute a rolling accuracy system so that it doesn't take so long
+function getAccuracy() {
+
+    // Tracking variables
+    let total = 0;
+    let right = 0;
+
+    // Looping for a bit of the training set
+    for (let i = 0; i < trainingLabels.length * 0.25; i++) {
+
+        // Getting the outputs
+        let output = brian.feedForward(trainingData[i]);
+
+        // Figuring out what the highest one is 
+        let highestIndex = 0;
+        let highest = 0;
+        for (let i = 0; i < 10; i++) {
+            if (output[i] > highest) {
+                highest = output[i];
+                highestIndex = i;
+            }
+        }
+
+        // It's right if the highestIndex is the same as the label
+        if (highestIndex == trainingLabels[i]) {
+            right++;
+        }
+
+        total++;
+
+    }
+
+
+    // Returning the percentage
+    return right / total * 100;
 
 }
 
@@ -196,11 +249,11 @@ async function loadData() {
         // Making another array, this one the one that we will be using to split the image along the commas
         let thisImage = rawTrainingData[i].split(',');
 
-        // Looping again to get the 
+        // Looping again to get the image
         for (let j = 0; j < (28 * 28); j++) {
 
-            // console.log("Pushing ", thisImage[j])
-            image.push(thisImage[j]);
+            // Adding in the data, just normalized to be between 0 and 1
+            image.push(thisImage[j] / 255);
 
         }
 
@@ -218,11 +271,11 @@ async function loadData() {
         // Making a new array, this one being the picture of the digit
         let image = [];
 
-        // Looping again to get the 
+        // Looping again to get the data
         for (let j = 0; j < (28 * 28); j++) {
 
-            // Adding this to the image
-            image.push(rawTestingData[i][j]);
+            // Adding in the data, just normalized to be between 0 and 1
+            image.push(rawTestingData[i][j] / 255);
 
         }
 
@@ -250,4 +303,18 @@ function saveTheIdiot() {
     brian = NeuralNetwork.fromJSON(spaghettifiedBrian);
 
 
+    // Saving the data to the json file
+    download(spaghettifiedBrian, 'Brian.JSON', "Saved Network");
+
 }
+
+
+// This downloads it to the computer, I need one that will save it to the browser's memory
+// I'll keep this one though for whenever we get one that is really good
+// function download(content, fileName, contentType) {
+//     var a = document.createElement("a");
+//     var file = new Blob([content], { type: contentType });
+//     a.href = URL.createObjectURL(file);
+//     a.download = fileName;
+//     a.click();
+// }
