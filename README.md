@@ -29,8 +29,11 @@ Then, for the harder method, you can simply download the files and run them with
 ### Handwriting Recognition Example
 This one is one of the fun ones. It will, when it is done, be able to recognize handwritten digits hopefully fairly well. I haven't finished it yet, but I do have some goals I wanted to add in so you can track my progress if you're interested.
 
-- [ ] Actually get it to start learning and knowing the set at all
+- [x] Actually get it to start learning and knowing the set at all
 - [ ] Saving the best one from each time \(I might get to learn JSON!)
+  - [x] Downloading Brian as a JSON file
+  - [ ] Saving Brian between reloads
+  - [ ] Saving the best Brian to be loaded whenever wanted
 - [ ] Letting users write in their own digits
 - [ ] Adding in little transformations \(and rotations) to the pictures so that it doesn't simply learn based on location
 
