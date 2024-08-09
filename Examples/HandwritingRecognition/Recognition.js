@@ -15,8 +15,13 @@ let brian;
 // A bool to make it easy to know if the data has loaded or not
 let loaded = false;
 
-// A counter to count the number of epochs that we have run
-let epochNum = 0;
+// The different buttons that the user can press to control Brian
+let nextButton;
+let testButton;
+
+// The labels that show the user how Brian is doing
+let scoreText;
+let labelText; // What Brian thinks it is vs what it is 
 
 
 function setup() {
@@ -30,73 +35,38 @@ function setup() {
     // Now to create the idiot
     brian = new NeuralNetwork([784, 256, 64, 32, 10]);
 
+    // Creating the buttons
+    nextButton = createButton("Next Number");
+    testButton = createButton("Test Brian");
+
+    // Making the buttons actually do stuff
+    nextButton.mousePressed(next);
+    testButton.mousePressed(getAccuracy);
+
+    // Making the labels
+    scoreText = createP("LOADING...");
+    labelText = createP("LOADING...");
+
     // Making sure that the user knows it's just loading
     console.log("Loading...");
 
 }
 
-function mousePressed() {
-
-    // If shift is pressed, then testing the accuracy 
-    if (keyIsDown(16)) {
-
-        // Checking the accuracy of the model
-        console.log("Brian has a score of " + getAccuracy() + "% on the testing set.");
-
-    } else {
-
-
-        // Picking a random digit to work with
-        let index = Math.floor((Math.random() * trainingData.length));
-
-        // Drawing the one we are on now
-        drawDigit(index);
-
-        // Just logging what the dataset thinks it is and what Brian thinks it is
-        console.log("It is a ", trainingLabels[index]);
-
-        // These are the probabilities of each (Tho they might not add up to 1)
-        let output = brian.feedForward(trainingData[index]);
-
-        // Figuring out which one is the highest one
-        let highestIndex = 0;
-        let highest = 0;
-        for (let i = 0; i < 10; i++) {
-            if (output[i] > highest) {
-                highest = output[i];
-                highestIndex = i;
-            }
-        }
-
-        // Printing out what we got from Brian
-        console.log("Brian thinks that it is a " + highestIndex);
-
-    }
-
-}
-
 function draw() {
 
-    // Checking to make sure it is loaded 
+    // Checking to make sure it is loaded
     if (!loaded) { return }
 
-    if (keyIsDown(32)) {
-
-
-        // Training
-        console.log("Training epoch number " + epochNum);
-        train();
-        console.log("Finished training epoch number " + epochNum);
-        epochNum++;
-
-    }
+    // Training Brian 100 times (100 is arbitrary; have fun changing it and see what happens)
+    train(100);
 
 }
 
 // Now for a simple training function that I will probably be refactoring later
-function train() {
+function train(times) {
 
-    for (let i = 0; i < 1000; i++) {
+    // Training the number of times they want us to
+    for (let i = 0; i < times; i++) {
 
         // Picking a random training index to train on 
         let index = Math.floor((Math.random() * trainingData.length));
@@ -113,7 +83,6 @@ function train() {
         brian.train(imageInputs, labels);
 
     }
-
 }
 
 
@@ -141,6 +110,46 @@ function drawDigit(index) {
 
     }
 
+
+}
+
+// A function that will pick another random bit of the data to check from
+function next() {
+
+    // Picking a random digit to work with
+    let index = Math.floor((Math.random() * trainingData.length));
+
+    // Drawing the one we are on now
+    drawDigit(index);
+
+    // These are the probabilities of each (Tho they might not add up to 1)
+    let output = brian.feedForward(trainingData[index]);
+
+    // Figuring out which one is the highest one
+    let highestIndex = 0;
+    let highest = 0;
+    for (let i = 0; i < 10; i++) {
+        if (output[i] > highest) {
+            highest = output[i];
+            highestIndex = i;
+        }
+    }
+
+    // Making a string to use to tell the user about Brian's stupidity
+    let labelString = "It is a " + trainingLabels[index] + ".\n";
+
+    // What did Brian think?
+    labelString += "Brian thought that it was a " + highestIndex + ".\n";
+
+    // Was Brian right?
+    if (trainingLabels[index] == highestIndex) {
+        labelString += "He was right!";
+    } else {
+        labelString += "He was wrong!";
+    }
+
+    // Writing it to the paragraph element so that they can actually see it
+    labelText.html(labelString);
 
 }
 
@@ -178,9 +187,8 @@ function getAccuracy() {
 
     }
 
+    scoreText.html("Brian's last score was " + right / total * 100 + "%");
 
-    // Returning the percentage
-    return right / total * 100;
 
 }
 
@@ -288,7 +296,8 @@ async function loadData() {
     loaded = true;
 
     // Telling the user that it has finished loading
-    console.log("Finished loading!");
+    labelText.html("");
+    scoreText.html("Brian has not been tested yet!");
 
 }
 
