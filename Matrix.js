@@ -590,45 +590,7 @@ class Matrix {
     // The static set method, but it will be a from array method instead
     static fromArray(arr) {
 
-        // Creating the new matrix object to return
-        let newMat = new Matrix();
-
-        // // Checking to see if the input is a 1D array, because we have to treat it differently if it is
-        // if (!(arr[0].length > 1)) {
-
-
-        //     // It is a 1D array, so we will treat it as a row matrix
-        //     newMat.data = [arr];
-
-        //     // Setting the data
-        //     newMat.rows = 1;
-        //     newMat.cols = arr.length;
-
-        //     // Returning this 
-        //     return newMat;
-
-        // }
-
-        // // Looping through the array to define the matrix
-        // for (let row = 0; row < arr.length; row++) {
-
-        //     // Creating this row with the right length
-        //     newMat.data[row] = new Array(arr[0].length);
-
-        //     for (let col = 0; col < arr[0].length; col++) {
-
-        //         newMat.data[row][col] = arr[row][col];
-
-        //     }
-
-        // }
-
-        // Setting the dimensions of the matrix
-        newMat.rows = arr.length;
-        newMat.cols = arr[0].length;
-
-        // Returning the new
-        // return newMat;
+        // Returning a new matrix
         return new Matrix(arr.length, arr[0].length).set(arr);
 
     }
