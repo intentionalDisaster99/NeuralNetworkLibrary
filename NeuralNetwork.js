@@ -17,12 +17,12 @@ class NeuralNetwork {
 
 
             // Copying the input variables.
-            this.numInputNodes = layout.numInputNodes.copy();
-            this.hiddenLayout = layout.hiddenLayout.copy();
-            this.numOutputNodes = layout.numOutputNodes.copy();
+            this.numInputNodes = layout.numInputNodes;
+            this.hiddenLayout = layout.hiddenLayout.slice();
+            this.numOutputNodes = layout.numOutputNodes;
 
             // Taking the record of the layout from the input
-            this.layout = layout.layout.copy();
+            this.layout = layout.layout.slice();
 
             // Getting random weights and biases for the outermost bits
             this.weights_ih = layout.weights_ih.copy();

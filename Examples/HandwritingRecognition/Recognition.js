@@ -47,9 +47,6 @@ function setup() {
     scoreText = createP("LOADING...");
     labelText = createP("LOADING...");
 
-    // Making sure that the user knows it's just loading
-    console.log("Loading...");
-
 }
 
 function draw() {
@@ -194,6 +191,8 @@ function getAccuracy() {
 
 async function loadData() {
 
+    // Making sure that the user knows it's just loading
+    console.log("Loading...");
 
     // First, getting the training data
     // var rawTrainingData;
