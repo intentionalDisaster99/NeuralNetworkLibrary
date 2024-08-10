@@ -36,6 +36,8 @@ function setup() {
 
     // Making Brian (same sizes as from main recognition.js sketch)
     brian = new NeuralNetwork([784, 256, 64, 32, 10]);
+    brian.setLearningRate(0.005);
+    bestBrian = new NeuralNetwork(brian);
 
 }
 
@@ -52,12 +54,14 @@ function draw() {
     // Checking to see if we have a new high score
     if (score > highScore) {
         bestBrian = new NeuralNetwork(brian);
+    } else {
+        brian = new NeuralNetwork(bestBrian);
     }
 
     // Checking to see if we are done training because Brian has quit learning and gone to guessing only zero
-    if (score < 20) {
-        saveTheIdiot();
-    }
+    // if (score < 20) {
+    //     saveTheIdiot();
+    // }
 
 
 
@@ -65,7 +69,7 @@ function draw() {
 
 // Saving when the user pressed enter
 function keyPressed() {
-    if (keyCode === ENTER) {
+    if (keyCode === 83) {
         saveTheIdiot();
     }
 }
@@ -176,7 +180,7 @@ async function loadData() {
     for (let i = 0; i < rawTrainingData.length; i++) {
 
         // The first value is the label, so we can save that
-        trainingLabels.push(rawTrainingData[i][0]);
+        trainingLabels.push(Number(rawTrainingData[i][0]));
 
         // Making a new array, this one being the picture of the digit
         let image = [];
@@ -188,7 +192,7 @@ async function loadData() {
         for (let j = 0; j < (28 * 28); j++) {
 
             // Adding in the data, just normalized to be between 0 and 1
-            image.push(thisImage[j] / 255);
+            image.push(Number(thisImage[j]) / 255);
 
         }
 
@@ -201,7 +205,7 @@ async function loadData() {
     for (let i = 0; i < rawTestingData.length; i++) {
 
         // The first value is the label, so we can save that
-        testingLabels.push(rawTestingData[i][0]);
+        testingLabels.push(Number(rawTestingData[i][0]));
 
         // Making a new array, this one being the picture of the digit
         let image = [];
@@ -210,7 +214,7 @@ async function loadData() {
         for (let j = 0; j < (28 * 28); j++) {
 
             // Adding in the data, just normalized to be between 0 and 1
-            image.push(rawTestingData[i][j] / 255);
+            image.push(Number(rawTestingData[i][j]) / 255);
 
         }
 
@@ -218,6 +222,9 @@ async function loadData() {
         testingData.push(image);
 
     }
+
+    // Telling them that they're done
+    console.log("Finished loading!")
 
     // Now, we should have everything, albeit a lot, so we can restart the drawing
     loaded = true;
@@ -232,6 +239,7 @@ function train(times) {
 
         // Picking a random training index to train on 
         let index = Math.floor((Math.random() * trainingData.length));
+        // console.log(index);// This way I can know what index the error is at(Hopefully its just bad data I can correct)
 
         // Making an array of 0's to use as the labels
         let labels = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -243,6 +251,7 @@ function train(times) {
 
         // Running it back through brian
         brian.train(imageInputs, labels);
+
 
     }
 }
