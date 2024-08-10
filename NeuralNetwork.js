@@ -15,7 +15,6 @@ class NeuralNetwork {
         // Checking to see if we are making a new network or cloning an old one
         if (layout instanceof NeuralNetwork) {
 
-
             // Copying the input variables.
             this.numInputNodes = layout.numInputNodes;
             this.hiddenLayout = layout.hiddenLayout.slice();
@@ -119,7 +118,7 @@ class NeuralNetwork {
 
         }
 
-        // Generating the output layer values
+        // Generating the output layer values     
         let output = Matrix.mult(this.weights_ho, hiddenOutput).add(this.bias_o).map(this.activation);
 
         return output.toArray();
