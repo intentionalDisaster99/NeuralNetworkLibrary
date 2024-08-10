@@ -194,9 +194,6 @@ async function loadData() {
     // Making sure that the user knows it's just loading
     console.log("Loading...");
 
-    // First, getting the training data
-    // var rawTrainingData;
-
     // Getting the data out of the training file
     let rawTrainingData = await fetch('/Examples/HandwritingRecognition/mnist_train.csv')
         .then(function (res) {
@@ -238,8 +235,6 @@ async function loadData() {
     // Splitting the data by the new line
     rawTestingData = rawTestingData.split('\n');
     rawTrainingData = rawTrainingData.split('\n');
-
-
 
     // Okay, now that we have the data, we need to separated it out into a legible format
     // The way I'll do this is to have a data array and labels array and then use the index values to match them
@@ -319,10 +314,10 @@ function saveTheIdiot() {
 
 // This downloads it to the computer, I need one that will save it to the browser's memory
 // I'll keep this one though for whenever we get one that is really good
-// function download(content, fileName, contentType) {
-//     var a = document.createElement("a");
-//     var file = new Blob([content], { type: contentType });
-//     a.href = URL.createObjectURL(file);
-//     a.download = fileName;
-//     a.click();
-// }
+function download(content, fileName, contentType) {
+    var a = document.createElement("a");
+    var file = new Blob([content], { type: contentType });
+    a.href = URL.createObjectURL(file);
+    a.download = fileName;
+    a.click();
+}

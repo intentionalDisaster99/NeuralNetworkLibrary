@@ -58,13 +58,6 @@ function draw() {
         brian = new NeuralNetwork(bestBrian);
     }
 
-    // Checking to see if we are done training because Brian has quit learning and gone to guessing only zero
-    // if (score < 20) {
-    //     saveTheIdiot();
-    // }
-
-
-
 }
 
 // Saving when the user pressed enter
@@ -125,9 +118,6 @@ async function loadData() {
 
     // Making sure that the user knows it's just loading
     console.log("Loading...");
-
-    // First, getting the training data
-    // var rawTrainingData;
 
     // Getting the data out of the training file
     let rawTrainingData = await fetch('/Examples/HandwritingRecognition/mnist_train.csv')
