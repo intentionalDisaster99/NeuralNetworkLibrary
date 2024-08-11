@@ -224,8 +224,8 @@ class NeuralNetwork {
     // A function that returns the JSON string of the network 
     toJSON() {
 
-        // Just saving a bunch of stuff as arrays
-        return {
+        // Just saving a bunch of stuff as arrays and then turning them to JSON
+        return JSON.stringify({
             layout: this.layout,
             weights_ih: this.weights_ih.toArray(),
             weights_ho: this.weights_ho.toArray(),
@@ -233,7 +233,7 @@ class NeuralNetwork {
             biases_h: this.biases_h.map(bias => bias.toArray()),
             bias_o: this.bias_o.toArray(),
             learningRate: this.learningRate
-        };
+        });
 
     }
 

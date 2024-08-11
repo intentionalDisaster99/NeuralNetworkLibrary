@@ -23,11 +23,17 @@ let highScore = 0;
 // The global variable that we will use to see if the data has been loaded or not
 let loaded = false;
 
+// The number of images that Brian will test against - we will up this once he tops 95%
+let times = 1000;
+
 // The variables that hold the training data
 let testingData = [];
 let testingLabels = [];
 let trainingData = [];
 let trainingLabels = [];
+
+// A counter to record how long Brian has been training
+let trainingCounter = 0;
 
 function setup() {
 
@@ -46,16 +52,35 @@ function draw() {
     if (!loaded) { return };
 
     // First, we want to train Brian
-    train(1000);
+    train(times);
 
-    // Now we want to see if Brian gets a better score on, like, 10,000 of the training data
-    let score = test(1000);
+    // Now we want to see if Brian gets a better score on, like, 1000 of the training data
+    let score = test(times);
 
     // Checking to see if we have a new high score
     if (score > highScore) {
         bestBrian = new NeuralNetwork(brian);
     } else {
         brian = new NeuralNetwork(bestBrian);
+    }
+
+    // Upping the number of times we test him if he does well
+    if (score > 97.5 && times != trainingLabels.length) {
+
+        // Figuring out what we should change it to 
+        if (times < trainingLabels.length - 1000) {
+            times += 1000;
+
+            console.log("Increasing the testing pool to " + times + "!");
+
+        } else if (score > 99) {
+            times = trainingLabels.length;
+            console.log("Increasing the testing pool the final time!\nIt is now " + times + "!")
+        }
+
+        // Telling them how many training iterations have gone by to get this far
+        console.log("Brian has trained " + trainingCounter + " times to get this far.");
+
     }
 
 }
@@ -77,7 +102,17 @@ function test(times) {
     // Looping for a bit of the training set
     for (let i = 0; i < times; i++) {
 
-        let index = Math.floor(Math.random() * trainingData.length);
+
+        // Declaring the index
+        let index;
+
+
+        // If we are using the entire set, then randomness would be worse so we won't
+        if (times == trainingLabels.length) {
+            index = i;
+        } else {
+            index = Math.floor(Math.random() * trainingData.length);
+        }
 
         // Getting the outputs
         let output = brian.feedForward(trainingData[index]);
@@ -242,6 +277,8 @@ function train(times) {
         // Running it back through brian
         brian.train(imageInputs, labels);
 
+        // Incrementing the training counter
+        trainingCounter++;
 
     }
 }
@@ -249,14 +286,15 @@ function train(times) {
 // This should (hopefully) be a function that saves Brian as a JSON file to be used later
 function saveTheIdiot() {
 
-    let spaghettifiedBrian = JSON.stringify(bestBrian);//brian.toJSON();
+    // Telling the user how long he trained before they cut his life short
+    console.log("Brian trained " + trainingCounter + " times in total.")
 
-    // console.log(spaghettifiedBrian);
+    // Turning Brian to JSON
+    let spaghettifiedBrian = brian.toJSON();
 
-    brian = NeuralNetwork.fromJSON(spaghettifiedBrian);
+    // brian = NeuralNetwork.fromJSON(spaghettifiedBrian);
 
-
-    // Saving the data to the json file
+    // Saving the data to the JSON file
     download(spaghettifiedBrian, 'Brian.JSON', "Saved Network");
 
 }

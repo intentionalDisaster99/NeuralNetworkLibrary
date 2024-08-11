@@ -23,6 +23,15 @@ let testButton;
 let scoreText;
 let labelText; // What Brian thinks it is vs what it is 
 
+// The Brian that is already trained
+let betterBrian; // Sorry for the name; I'm assuming mine is better 
+
+// A boolean to tell whether or not we are working on the pre-trained Brian or not
+let usingPretrainedBrian = false;
+
+// The button to change Brians 
+let switchButton;
+
 
 function setup() {
 
@@ -38,10 +47,12 @@ function setup() {
     // Creating the buttons
     nextButton = createButton("Next Number");
     testButton = createButton("Test Brian");
+    switchButton = createButton("Use Pre-trained Brian");
 
     // Making the buttons actually do stuff
     nextButton.mousePressed(next);
     testButton.mousePressed(getAccuracy);
+    switchButton.mousePressed(changeBrians);
 
     // Making the labels
     scoreText = createP("LOADING...");
@@ -54,8 +65,13 @@ function draw() {
     // Checking to make sure it is loaded
     if (!loaded) { return }
 
-    // Training Brian 100 times (100 is arbitrary; have fun changing it and see what happens)
-    train(100);
+    // Checking to see whether or not we need to train Brian
+    if (!usingPretrainedBrian) {
+
+        // Training Brian 100 times (100 is arbitrary; have fun changing it and see what happens)
+        train(100);
+
+    }
 
 }
 
@@ -119,8 +135,17 @@ function next() {
     // Drawing the one we are on now
     drawDigit(index);
 
-    // These are the probabilities of each (Tho they might not add up to 1)
-    let output = brian.feedForward(trainingData[index]);
+    // Declaring the output variable
+    let output;
+
+    // Choosing the right network
+    if (usingPretrainedBrian) {
+        // These are the probabilities of each (Tho they might not add up to 1)
+        output = betterBrian.feedForward(trainingData[index]);
+    } else {
+        // These are the probabilities of each (Tho they might not add up to 1)
+        output = brian.feedForward(trainingData[index]);
+    }
 
     // Figuring out which one is the highest one
     let highestIndex = 0;
@@ -162,8 +187,15 @@ function getAccuracy() {
     // Looping for a bit of the training set
     for (let i = 0; i < trainingLabels.length * 0.25; i++) {
 
-        // Getting the outputs
-        let output = brian.feedForward(trainingData[i]);
+        // Declaring the output variable so that JavaScript doesn't get mad at me
+        let output;
+
+        // Getting the outputs from the right network
+        if (usingPretrainedBrian) {
+            output = betterBrian.feedForward(trainingData[i]);
+        } else {
+            output = brian.feedForward(trainingData[i]);
+        }
 
         // Figuring out what the highest one is 
         let highestIndex = 0;
@@ -184,8 +216,8 @@ function getAccuracy() {
 
     }
 
+    // Updating the label
     scoreText.html("Brian's last score was " + right / total * 100 + "%");
-
 
 }
 
@@ -289,28 +321,27 @@ async function loadData() {
     // Now, we should have everything, albeit a lot, so we can restart the drawing
     loaded = true;
 
+    // Logging that it is loaded
+    console.log("Finished loading!")
+
     // Telling the user that it has finished loading
     labelText.html("");
     scoreText.html("Brian has not been tested yet!");
 
 }
 
-
 // This should (hopefully) be a function that saves Brian as a JSON file to be used later
 function saveTheIdiot() {
 
-    let spaghettifiedBrian = JSON.stringify(brian);//brian.toJSON();
+    // Turning him into JSON to save
+    let spaghettifiedBrian = brian.toJSON();//JSON.stringify(brian.toJSON());//brian.toJSON();
 
-    // console.log(spaghettifiedBrian);
-
-    brian = NeuralNetwork.fromJSON(spaghettifiedBrian);
-
+    // brian = NeuralNetwork.fromJSON(spaghettifiedBrian);
 
     // Saving the data to the json file
     download(spaghettifiedBrian, 'Brian.JSON', "Saved Network");
 
 }
-
 
 // This downloads it to the computer, I need one that will save it to the browser's memory
 // I'll keep this one though for whenever we get one that is really good
@@ -321,3 +352,66 @@ function download(content, fileName, contentType) {
     a.download = fileName;
     a.click();
 }
+
+// A function that loads Brian from the Brian.JSON file (the one that I have pre-trained)
+async function loadBrian() {
+
+    // Getting the data from the JSON file
+    // Some strange variable names...
+    let rawBrian = await fetch('/Examples/HandwritingRecognition/PretrainedBrian.JSON')
+        .then(function (res) {
+            if (!res.ok) {
+                throw new Error('Network response was not ok ' + res.statusText);
+            }
+            return res.text();
+        })
+        .then(function (data) {
+            return data;
+        })
+        .catch(function (error) {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+
+    // Despaghettifying Brian
+    betterBrian = NeuralNetwork.fromJSON(rawBrian);
+
+    // Changing over to using this network
+    usingPretrainedBrian = true;
+
+    // Telling them that the better Brian has been loaded
+    console.log("The pre-trained Brian has been loaded!");
+
+}
+
+// A function that switches Brians
+function changeBrians() {
+
+    // If betterBrian is undefined, then we have to load him 
+    if (betterBrian == undefined) {
+        // loadBrian();
+        loadBrian().then(() => {
+            if (betterBrian) {
+                console.log("Testing loaded Brian with a sample input...");
+                let testInput = testingData[0];  // Use a sample input from your testing data
+                let output = betterBrian.feedForward(testInput);
+                console.log("Output from pre-trained network:", output);
+            }
+        });
+        switchButton.html("Use your own Brian");
+    } else if (usingPretrainedBrian) {
+
+        // We already are using the pre-trained Brian so we need to switch back
+        usingPretrainedBrian = false;
+        switchButton.html("Use Pre-Trained Brian");
+
+    } else {
+
+        // We want to switch to the better Brian because he is definitely better
+        usingPretrainedBrian = true;
+        switchButton.html("Use your own Brian");
+
+    }
+
+}
+
+// I have typed the name Brian so much it no longer sounds nor looks like a word
