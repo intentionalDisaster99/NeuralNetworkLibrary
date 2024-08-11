@@ -388,15 +388,7 @@ function changeBrians() {
 
     // If betterBrian is undefined, then we have to load him 
     if (betterBrian == undefined) {
-        // loadBrian();
-        loadBrian().then(() => {
-            if (betterBrian) {
-                console.log("Testing loaded Brian with a sample input...");
-                let testInput = testingData[0];  // Use a sample input from your testing data
-                let output = betterBrian.feedForward(testInput);
-                console.log("Output from pre-trained network:", output);
-            }
-        });
+        loadBrian();
         switchButton.html("Use your own Brian");
     } else if (usingPretrainedBrian) {
 
