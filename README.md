@@ -32,10 +32,10 @@ This one is one of the fun ones. It will, when it is done, be able to recognize 
 - [x] Actually get it to start learning and knowing the set at all
 - [ ] Saving the best one from each time \(I might get to learn JSON!)
   - [x] Downloading Brian as a JSON file
-  - [ ] A seperate file to generate an insanely good Brian
-  - [ ] A seperate file to load an run insanely good Brians
+  - [x] A seperate file to generate an insanely good Brian
+  - [x] A seperate file to load an run insanely good Brians
   - [ ] Saving Brian between reloads
-  - [ ] Saving the best Brian to be loaded whenever wanted
+  - [x] Saving the best Brian to be loaded whenever wanted
 - [ ] Letting users write in their own digits
 - [ ] Adding in little transformations \(and rotations) to the pictures so that it doesn't simply learn based on location
 
