@@ -32,6 +32,16 @@ let usingPretrainedBrian = false;
 // The button to change Brians 
 let switchButton;
 
+// The button that allows them to draw their own
+let drawButton;
+
+// A boolean to keep track of whether they are drawing their own version or not
+let custom = false;
+
+// An array that holds the current digit
+// It'll be a 28 by 28 array of doubles from 0 to 1
+let currentDigit = [];
+
 
 function setup() {
 
@@ -48,15 +58,27 @@ function setup() {
     nextButton = createButton("Next Number");
     testButton = createButton("Test Brian");
     switchButton = createButton("Use Pre-trained Brian");
+    drawButton = createButton("Draw your own digit");
 
     // Making the buttons actually do stuff
     nextButton.mousePressed(next);
     testButton.mousePressed(getAccuracy);
     switchButton.mousePressed(changeBrians);
+    drawButton.mousePressed(customDraw);
+
+    // Setting up the current digit as a blank black square 
+    for (let row = 0; row < 28; row++) {
+        currentDigit.push([]);
+        for (let col = 0; col < 28; col++) {
+            currentDigit[row].push(0);
+        }
+    }
 
     // Making the labels
     scoreText = createP("LOADING...");
     labelText = createP("LOADING...");
+
+
 
 }
 
@@ -68,8 +90,37 @@ function draw() {
     // Checking to see whether or not we need to train Brian
     if (!usingPretrainedBrian) {
 
-        // Training Brian 100 times (100 is arbitrary; have fun changing it and see what happens)
-        train(100);
+        // Changing the number of times it trains when using the custom drawing so that it is faster
+        if (custom) {
+
+            // Training only ten times because that means that we can share some processing power
+            train(10);
+
+        } else {
+            // Training Brian 100 times (100 is arbitrary; have fun changing it and see what happens)
+            train(100);
+        }
+
+    }
+
+    // If it is in custom mode, checking to see what Brian thinks of their handwriting
+    if (custom) {
+
+        // Running Brian to see what he thinks of whatever it is that they drew
+        let output = brian.feedForward(currentDigit.flat());
+
+        // Telling them what Brian thought it was
+        // Figuring out which one is the highest one
+        let highestIndex = 0;
+        let highest = 0;
+        for (let i = 0; i < 10; i++) {
+            if (output[i] > highest) {
+                highest = output[i];
+                highestIndex = i;
+            }
+        }
+
+        labelText.html("Brian thinks that it's a " + highestIndex + "!");
 
     }
 
@@ -172,6 +223,98 @@ function next() {
 
     // Writing it to the paragraph element so that they can actually see it
     labelText.html(labelString);
+
+}
+
+// A function that allows them to draw their own digits
+function customDraw() {
+
+    // Clearing the screen
+    background(0);
+
+    // We need to toggle this on or off here
+    if (custom) {
+        custom = false;
+        drawButton.html("Draw your own digit");
+        nextButton.html("Next");
+        nextButton.mousePressed(next);
+
+        // Here, we will also realign the buttons back to their old use cases
+
+    } else {
+        custom = true;
+
+        // Why don't we yoink the buttons to use for our own sinister purposes 
+        drawButton.html("Use pre-drawn digits");
+        nextButton.html("Clear");
+        nextButton.mousePressed(clearScreen);
+
+    }
+
+}
+
+// A function that draws when they press their mouse as long as it is in custom mode
+function mouseDragged() {
+
+    // Exiting if they don't mean to be drawing
+    if (!custom) {
+        return;
+    }
+
+    // Normalizing the mouse values
+    let x = Math.round(mouseX / width * 28);
+    let y = Math.round(mouseY / height * 28);
+
+    // Adding that to the current digit
+    currentDigit[x][y] = 1;
+
+    // Adding some to each adjacent tile(because that's what it looks like in the original)
+    let increase = 0.1;
+
+    // This is the adjacent offset array
+    let offsets = [[0, 1], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]];
+
+    // Looping once for each adjacent tile
+    for (let i = 0; i < 8; i++) {
+        currentDigit[x + offsets[i][0]][y + offsets[i][1]] = (currentDigit[x + offsets[i][0]][y + offsets[i][1]] < 1) ? currentDigit[x + offsets[i][0]][y + offsets[i][1]] + increase : currentDigit[x + offsets[i][0]][y + offsets[i][1]];
+    }
+
+
+
+
+
+    // Now we want to actually draw it
+    noStroke();
+    for (let x = 0; x < 28; x++) {
+
+        for (let y = 0; y < 28; y++) {
+
+            // Finding the color that we need to draw here
+            fill(currentDigit[x][y] * 255);
+
+            // Drawing
+            rect(x * width / 28, y * height / 28, width / 28, height / 28);
+
+        }
+
+    }
+
+}
+
+// A clear function that clears the array that holds the current digit and what is being displayed
+function clearScreen() {
+
+    background(0);
+
+    // Clearing the current digit
+    currentDigit = [];
+
+    for (let row = 0; row < 28; row++) {
+        currentDigit.push([]);
+        for (let col = 0; col < 28; col++) {
+            currentDigit[row].push(0);
+        }
+    }
 
 }
 
@@ -294,6 +437,8 @@ async function loadData() {
         // Adding the image to the training data
         trainingData.push(image);
 
+
+
     }
 
     // Now, the testing set
@@ -323,6 +468,9 @@ async function loadData() {
 
     // Logging that it is loaded
     console.log("Finished loading!")
+
+    // Drawing a black background to somewhat spare their eyes and to tell them that it has loaded
+    background(0);
 
     // Telling the user that it has finished loading
     labelText.html("");
