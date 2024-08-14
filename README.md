@@ -36,7 +36,9 @@ This one is one of the fun ones. It will, when it is done, be able to recognize 
   - [x] A seperate file to load an run insanely good Brians
   - [ ] Saving Brian between reloads
   - [x] Saving the best Brian to be loaded whenever wanted
-- [ ] Letting users write in their own digits
+- [X] Letting users write in their own digits
+      This actually adds in more issues because the digits can be in different orientations and different locations and things like that, so...
+  - [ ] Add transformations and rotations to the training data.
 - [ ] Adding in little transformations \(and rotations) to the pictures so that it doesn't simply learn based on location
 
 ## Future Plans
