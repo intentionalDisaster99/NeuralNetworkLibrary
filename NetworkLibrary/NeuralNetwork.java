@@ -3,57 +3,12 @@ import MatrixLibrary.Matrix;
 import java.util.Arrays;
 
 
-
 public class NeuralNetwork {
     
 
-    public static void main(String[] args) {
+    public static void main(String[] args) { 
 
-        // For the training, we just have a simple XOR method
-
-        int[] layout = {2, 4, 4, 2};
-        NeuralNetwork brain = new NeuralNetwork(layout);
-
-        double[] inputData = {0, 1};
-        double[] labels = {0, 1};
-
-        for (int i = 0; i < 100000; i++) {
-
-            // Setting a random input data
-            inputData[0] = Math.round(Math.random());
-            inputData[1] = Math.round(Math.random());
-
-            
-            labels[1] = NeuralNetwork.XOR(inputData[0], inputData[1]);
-            if (labels[1] == 1) {
-                labels[0] = 0;
-            } else {
-                labels[0] = 1;
-            }
-
-            brain.train(inputData, labels);
-            // System.out.println(Arrays.toString(brain.feedForward(mainData)));
-
-        }
-
-        inputData[0] = Math.round(Math.random());
-        inputData[1] = Math.round(Math.random());
-
-        labels[1] = NeuralNetwork.XOR(inputData[0], inputData[1]);
-            if (labels[1] == 1) {
-                labels[0] = 0;
-            } else {
-                labels[0] = 1;
-            }
-
-        System.out.println("Input was " + Arrays.toString(inputData));
-        System.out.println("It should be " + Arrays.toString(inputData));
-
-
-
-        System.out.println("Output was " + Arrays.toString(brain.feedForward(inputData)));
-
-
+        
 
     } 
 

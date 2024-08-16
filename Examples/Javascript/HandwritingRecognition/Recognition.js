@@ -370,7 +370,7 @@ async function loadData() {
     console.log("Loading...");
 
     // Getting the data out of the training file
-    let rawTrainingData = await fetch('/Examples/HandwritingRecognition/mnist_train.csv')
+    let rawTrainingData = await fetch('/Examples/Javascript/HandwritingRecognition/mnist_train.csv')
         .then(function (res) {
             if (!res.ok) {
                 throw new Error('Network response was not ok ' + res.statusText);
@@ -389,7 +389,7 @@ async function loadData() {
         });
 
     // Getting the data out of the testing file
-    let rawTestingData = await fetch('/Examples/HandwritingRecognition/mnist_test.csv')
+    let rawTestingData = await fetch('/Examples/Javascript/HandwritingRecognition/mnist_test.csv')
         .then(function (res) {
             if (!res.ok) {
                 throw new Error('Network response was not ok ' + res.statusText);
@@ -506,7 +506,7 @@ async function loadBrian() {
 
     // Getting the data from the JSON file
     // Some strange variable names...
-    let rawBrian = await fetch('/Examples/HandwritingRecognition/PretrainedBrian.JSON')
+    let rawBrian = await fetch('/Examples/Javascript/HandwritingRecognition/PretrainedBrian.JSON')
         .then(function (res) {
             if (!res.ok) {
                 throw new Error('Network response was not ok ' + res.statusText);
